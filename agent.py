@@ -6,9 +6,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Agent():
     def __init__(self, args):
-        
+        self.args = args
+
 # dueling으로 모델 결정
-        if args.dueling:
+        if self.args.dueling:
             self.online = Dueling_Qnet()
             self.target = Dueling_Qnet()
         else:
@@ -20,32 +21,32 @@ class Agent():
 
         self.target_update()        # 타겟 네트워크 동기화
 
-        self.memory = ReplayBuffer(args.buffer_limit)
+        self.memory = ReplayBuffer(self.args.buffer_limit)
     
     def train(self):
-        optimizer = optim.Adam(self.online.parameters(), lr=args.learning_rate)
+        optimizer = optim.Adam(self.online.parameters(), lr=self.args.learning_rate)
         for i in range(10):
-            s, a, r, s_prime, done_mask = self.memory.sample(args.batch_size)
+            h, a, r, h_prime, done_mask = self.memory.sample(self.args.batch_size)
             # gpu
-            s, a, r, s_prime = s.to(device), a.to(device), r.to(device), s_prime.to(device)
+            h, a, r, h_prime = h.to(device), a.to(device), r.to(device), h_prime.to(device)
 
-            q_out = self.online(s)
+            q_out = self.online(h)
             q_a = q_out.gather(1,a)
 
 # double로 타겟 결정
-            if args.double: 
+            if self.args.double: 
                 # online_net에서 액션 선택
-                q_prime_idx = self.online(s_prime).max(1)[1]
+                q_prime_idx = self.online(h_prime).max(1)[1]
                 # target_net에서 q값 계산
-                q_primes = self.target(s_prime)
+                q_primes = self.target(h_prime)
                 # online_net에서 고른 액션의, target_net의 q값 뽑기
                 max_q_prime = q_primes.gather(1,q_prime_idx.unsqueeze(1))
                 
             else:
-                max_q_prime = self.target(s_prime).max(1)[0].unsqueeze(1)
+                max_q_prime = self.target(h_prime).max(1)[0].unsqueeze(1)
 
         # loss 계산
-            target = r + self.gamma * max_q_prime * done_mask
+            target = r + self.args.gamma * max_q_prime * done_mask
             loss = F.smooth_l1_loss(q_a, target.detach())
 
             optimizer.zero_grad()
@@ -56,6 +57,7 @@ class Agent():
     def target_update(self):
         self.target.load_state_dict(self.online.state_dict())
 
+#obs: np.array
     def sample_action(self, obs, epsilon, action, goal_ob_reward):
         out = self.online.forward(obs)
         coin = random.random()

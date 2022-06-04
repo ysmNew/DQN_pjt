@@ -13,6 +13,7 @@ class Qnet(nn.Module):
         self.fc2 = nn.Linear(128, 4)
 
     def forward(self, x):           # input size: (N, 4, 10, 9)
+        x = x.type(torch.float32)
         x = F.relu(self.conv1(x))               # (N, 4, 10, 9) -> (N, 32, 8, 7)
         x = F.relu(self.conv2(x))               # (N, 32, 8, 7) -> (N, 64, 6, 5)
         x = torch.flatten(x, 1)                 # (N, 64, 30)
@@ -32,7 +33,7 @@ class Dueling_Qnet(nn.Module):
         self.fc2_val = nn.Linear(128, 1)
 
     def forward(self, x):           # input size: (N, 4, 10, 9)
-        x = F.relu(self.conv1(x))               # (N, 4, 10, 9) -> (N, 32, 8, 7)
+        x = F.relu(self.conv1(x.float()))               # (N, 4, 10, 9) -> (N, 32, 8, 7)
         x = F.relu(self.conv2(x))               # (N, 32, 8, 7) -> (N, 64, 6, 5)
         x = torch.flatten(x, 1)                 # (N, 64, 30)
 # Q(s,a) = V(s) + A(s,a) - A.mean

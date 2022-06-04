@@ -1,4 +1,5 @@
 import argparse
+import torch
 
 from Sim import *
 from agent import *
@@ -30,7 +31,6 @@ args = parser.parse_args()
 
 def main():
     sim = Simulator(args)
-############## agent, buffer init 조절 ###############
     agent = Agent(args)
 
     # main_args
@@ -50,9 +50,9 @@ def main():
         agent.memory.put((h, a, r, h_prime, 1.0)) # done = False, done_mask = 1.0
         h = h_prime
 
-        while not done: ##### h 자료형 확인(array로))
+        while not done:
             for _ in range(10):
-                action = agent.sample_action(h.float(),epsilon,a,gr)
+                action = agent.sample_action(torch.from_numpy(h).unsqueeze(0),epsilon,a,gr)
                 h, a, r, h_prime, done, cr, gr = sim.step(action)
                 done_mask = 0.0 if done else 1.0
                 agent.memory.put((h, a, r, h_prime, done_mask))
@@ -68,12 +68,13 @@ def main():
                     print('==================================================')
                     break
                 
-            if agent.memory.size()>arg.start_limit:
+            if agent.memory.size()>args.start_limit:
                 loss = agent.train()
                 running_loss += loss
 
                 if epi%args.sync_freq == 0:
                     agent.target_update()
+                    input()
 
                 if epi%args.log_freq == 0:
                     writer.add_scalar('cumulative reward', cr, epi)
@@ -83,15 +84,15 @@ def main():
             if epi % 39999 == 0 and epi != 0:
                 torch.save(agent.online.state_dict(),'./pt_temp/'+str(epi)+'.pt')
 
-        torch.save(agent.online.state_dict(),'./pt/state_dict_'+str(arg.try_number)+'.pt')
+    torch.save(agent.online.state_dict(),'./pt/state_dict_'+str(args.try_number)+'.pt')
 
 
 if __name__ == '__main__':
 
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('tensor in', "cuda" if torch.cuda.is_available() else "cpu")
     input()
-    writer = SummaryWriter('./logs/train_'+str(arg.try_number))
+    writer = SummaryWriter('./logs/train_'+str(args.try_number))
     
     main()
 
