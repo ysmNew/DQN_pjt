@@ -17,7 +17,7 @@ parser.add_argument('-bl', '--buffer_limit',    type=int,   default=100000)
 parser.add_argument('-sl', '--start_limit',     type=int,   default=50000)
 parser.add_argument('-gm', '--gamma',           type=float, default=0.99)
 parser.add_argument('-lr', '--learning_rate',   type=float, default=0.0001)
-parser.add_argument('-sf', '--sync_freq',       type=int,   default=1000)
+parser.add_argument('-sf', '--sync_freq',       type=int,   default=2000)
 parser.add_argument('-lf', '--log_freq',        type=int,   default=200)
 
 
@@ -65,7 +65,7 @@ def main():
                 if done:
                     print(sim.actions)
                     print('episode: {}, epsilon: {}'.format(epi,epsilon))
-                    print('finish:{}, lenth: {}, cr: {}'.format(finish_num,len(sim.actions),cr))
+                    print('finish: {}, lenth: {}, cr: {}'.format(finish_num,len(sim.actions),cr))
                     print('==================================================')
                     break
                 
@@ -79,7 +79,7 @@ def main():
                     #input()
 
                 if epi%args.log_freq == 0:
-                    writer.add_scalar('cumulative reward', cum_reward, epi)
+                    writer.add_scalar('cumulative reward', cum_reward/args.log_freq, epi)
                     writer.add_scalar('average training loss', running_loss/args.log_freq, epi)
                     cum_reward = 0.0
                     running_loss = 0.0
