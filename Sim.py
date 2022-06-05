@@ -163,7 +163,7 @@ class Simulator:
         new_dist = self.calculate_distance(new_x, new_y)
         #print(cur_dist,new_dist, end =' ')
         
-        return self.args.forward_reward if cur_dist>new_dist else self.args.backward_reward
+        return 1/new_dist if cur_dist>new_dist else self.args.backward_reward
 
 
     def get_reward(self, cur_x, cur_y, new_x, new_y, out_of_boundary):
