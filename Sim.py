@@ -4,6 +4,7 @@ from pyglet.gl import *
 import numpy as np
 import pandas as pd
 import os
+import math
 
 
 local_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
@@ -163,7 +164,7 @@ class Simulator:
         new_dist = self.calculate_distance(new_x, new_y)
         #print(cur_dist,new_dist, end =' ')
         
-        return 1/new_dist if cur_dist>new_dist else self.args.backward_reward
+        return 0.1/math.sqrt(new_dist) if cur_dist>new_dist else self.args.backward_reward
 
 
     def get_reward(self, cur_x, cur_y, new_x, new_y, out_of_boundary):
@@ -300,6 +301,7 @@ class Simulator:
                 
         reward = self.get_reward(cur_x, cur_y, new_x, new_y, out_of_boundary)
         print('reward:', reward)
+        #input()
         self.cumulative_reward += reward
         h_prime = self.get_history()
 
