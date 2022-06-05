@@ -10,6 +10,7 @@
     python main.py -rn 4 -bs 64          # 배치사이즈 54로 39999*4 번 학습을 진행시키는 경우
     python main.py --double --dueling    # DoubleDQN과 DuelingDQN 적용하는 경우
 
+---
 
 
 ## 모두의 연구소 Environment
