@@ -160,7 +160,7 @@ class Simulator:
     def move_reward(self, cur_x, cur_y, new_x, new_y):
         cur_dist = self.calculate_distance(cur_x, cur_y)
         new_dist = self.calculate_distance(new_x, new_y)
-        print(cur_dist,new_dist)
+        print(cur_dist,new_dist, end =' ')
         
         return self.args.forward_reward if cur_dist>new_dist else self.args.backward_reward
 
@@ -184,11 +184,8 @@ class Simulator:
                 reward = self.args.obs_reward  
 
             # 현재 목표에 도달한 경우
-            elif self.grid[new_x][new_y] == 4:
+            elif new_x == self.terminal_location[0] and new_y == self.terminal_location[1]:
                 reward = self.args.goal_reward
-# 보류) 출발지로 돌아오는경우 추가 보상
-#                if [new_x, new_y] == [9,4]:
-#                    reward += goal_reward
 
             # 그냥 움직이는 경우 
             else:
@@ -268,7 +265,7 @@ class Simulator:
             
             # 현재 목표에 도달한 경우, 다음 목표설정
             elif self.grid[new_x][new_y] == 4:
-                print(action, '찾았다!')
+                print(action, '===================================>', '찾았다!')
                 # end point 일 때
                 if (new_x, new_y) == (9,4):
                     print('도착')

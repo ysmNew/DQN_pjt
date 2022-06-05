@@ -74,7 +74,7 @@ def main():
 
                 if epi%args.sync_freq == 0:
                     agent.target_update()
-                    input()
+                    #input()
 
                 if epi%args.log_freq == 0:
                     writer.add_scalar('cumulative reward', cr, epi)

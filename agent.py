@@ -28,7 +28,7 @@ class Agent():
         for i in range(10):
             h, a, r, h_prime, done_mask = self.memory.sample(self.args.batch_size)
             # gpu
-            h, a, r, h_prime = h.to(device), a.to(device), r.to(device), h_prime.to(device)
+            h, a, r, h_prime, done_mask = h.to(device), a.to(device), r.to(device), h_prime.to(device), done_mask.to(device)
 
             q_out = self.online(h)
             q_a = q_out.gather(1,a)
@@ -59,6 +59,7 @@ class Agent():
 
 #obs: np.array
     def sample_action(self, obs, epsilon, action, goal_ob_reward):
+        obs = obs.to(device)
         out = self.online.forward(obs)
         coin = random.random()
         
