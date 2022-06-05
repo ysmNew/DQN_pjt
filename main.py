@@ -63,6 +63,7 @@ def main():
                     finish_num += 1
 
                 if done:
+                    print(sim.target_list)
                     print(sim.actions)
                     print('episode: {}, epsilon: {}'.format(epi,epsilon))
                     print('finish: {}, lenth: {}, cr: {}'.format(finish_num,len(sim.actions),cr))

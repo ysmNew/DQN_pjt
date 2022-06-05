@@ -108,6 +108,7 @@ class Simulator:
         # set information about the gridworld
         self.set_box()
         self.set_obstacle()
+        self.target_list = self.local_target.copy()
 
         # start point를 grid에 표시
         self.curloc = [9, 4]
@@ -160,7 +161,7 @@ class Simulator:
     def move_reward(self, cur_x, cur_y, new_x, new_y):
         cur_dist = self.calculate_distance(cur_x, cur_y)
         new_dist = self.calculate_distance(new_x, new_y)
-        print(cur_dist,new_dist, end =' ')
+        #print(cur_dist,new_dist, end =' ')
         
         return self.args.forward_reward if cur_dist>new_dist else self.args.backward_reward
 
@@ -289,7 +290,7 @@ class Simulator:
                     
                 # 그냥 길에서 움직이는 경우 
                 else:
-                    print(action, '..')
+                    #print(action, '..')
                     self.grid[cur_x][cur_y] = 1
                     self.grid[new_x][new_y] = 5
                     self.curloc = (new_x, new_y)
