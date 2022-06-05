@@ -1,7 +1,7 @@
 ## DQN 실습
 
 ### 6/5 진행상황
- - tran 가능한 것 까지 확인
+ - train 가능한 것 까지 확인
  - test 코드 구현 필요
  - cumalative reward log 어떻게 찍을지..?
  - pt파일 폴더 자동생성 기능 필요
