@@ -36,6 +36,7 @@ def main():
     # main_args
     epsilon_limit = 30000*args.echo
     running_loss = 0.0
+    cum_reward = 0.0
     finish_num = 0
 
     for epi in range(len(sim.files)*args.echo):
@@ -64,21 +65,23 @@ def main():
                 if done:
                     print(sim.actions)
                     print('episode: {}, epsilon: {}'.format(epi,epsilon))
-                    print('lenth: {}, cr: {}'.format(len(sim.actions),cr))
+                    print('finish:{}, lenth: {}, cr: {}'.format(finish_num,len(sim.actions),cr))
                     print('==================================================')
                     break
                 
             if agent.memory.size()>args.start_limit:
                 loss = agent.train()
                 running_loss += loss
+                cum_reward += cr
 
                 if epi%args.sync_freq == 0:
                     agent.target_update()
                     #input()
 
                 if epi%args.log_freq == 0:
-                    writer.add_scalar('cumulative reward', cr, epi)
+                    writer.add_scalar('cumulative reward', cum_reward, epi)
                     writer.add_scalar('average training loss', running_loss/args.log_freq, epi)
+                    cum_reward = 0.0
                     running_loss = 0.0
                     
             if epi % 39999 == 0 and epi != 0:

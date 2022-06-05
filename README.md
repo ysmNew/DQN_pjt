@@ -5,6 +5,8 @@
  - test 코드 구현 필요
  - cumalative reward log 어떻게 찍을지..?
  - pt파일 폴더 자동생성 기능 필요
+ 
+ ~현재 학습하면 빈 박스에 계속 머리 박는 중~
 
 
 ### **How to train**
