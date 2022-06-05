@@ -254,14 +254,14 @@ class Simulator:
                 print(action, '쿵!')
                 self.done = True
 
-            # 빈 아이템 박스는 들어가지 않기
+            # 빈 아이템 박스는 들어가지 않기 ---------> 종료
             elif self.grid[new_x][new_y] in (2,3):
                 print(action, '비었어')
-                # self.grid[cur_x][cur_y]를 그대로 5로 유지
+                # self.grid[cur_x][cur_y]를 그대로 5로 유지 
                 # self.grid[new_x][new_y]를 그대로 2나 3으로 유지
                 # self.curloc를 그댈 self.curloc = (cur_x,cur_y)로 유지
-                # 대신 reward만 장애물 패널티를 받음
-                pass
+                # 대신 reward만 장애물 패널티를 받음 -------------------------> 그냥 죽어라
+                self.done = True
             
             # 현재 목표에 도달한 경우, 다음 목표설정
             elif self.grid[new_x][new_y] == 4:
