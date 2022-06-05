@@ -265,13 +265,13 @@ class Simulator:
             
             # 현재 목표에 도달한 경우, 다음 목표설정
             elif self.grid[new_x][new_y] == 4:
-                print(action, self.local_target[0], '찾았다!')
+                print(action, '====================>', self.local_target[0], '찾았다!')
                 # end point 일 때
                 if (new_x, new_y) == (9,4):
                     print('###########################도착###########################')
                     self.done = True
                 else:
-                    print('다음 목표는', self.local_target[1])
+                    print('======================>', '다음 목표는', self.local_target[1])
                     
                 self.local_target.remove(self.local_target[0])
                 self.grid[cur_x][cur_y] = 1
