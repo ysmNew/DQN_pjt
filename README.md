@@ -1,3 +1,16 @@
+## DQN 실습
+
+### 6/5 진행상황
+ - tran 가능한 것 까지 확인
+ - test 코드 구현 필요
+
+
+### **How to train**
+    python main.py                       # 기본 설정으로 실행
+    python main.py -rn 4 -bs 64          # 배치사이즈 54로 39999*4 번 학습을 진행시키는 경우
+    python main.py --double --dueling    # DoubleDQN과 DuelingDQN 적용하는 경우
+
+
 
 ## 모두의 연구소 Environment
 
