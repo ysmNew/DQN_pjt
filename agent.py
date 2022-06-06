@@ -26,24 +26,24 @@ class Agent():
     def train(self):
         optimizer = optim.Adam(self.online.parameters(), lr=self.args.learning_rate)
         for i in range(10):
-            h, a, r, h_prime, done_mask = self.memory.sample(self.args.batch_size)
+            s, a, r, s_prime, done_mask = self.memory.sample(self.args.batch_size)
             # gpu
-            h, a, r, h_prime, done_mask = h.to(device), a.to(device), r.to(device), h_prime.to(device), done_mask.to(device)
+            s, a, r, s_prime, done_mask = s.to(device), a.to(device), r.to(device), s_prime.to(device), done_mask.to(device)
 
-            q_out = self.online(h)
+            q_out = self.online(s)
             q_a = q_out.gather(1,a)
 
 # double로 타겟 결정
             if self.args.double: 
                 # online_net에서 액션 선택
-                q_prime_idx = self.online(h_prime).max(1)[1]
+                q_prime_idx = self.online(s_prime).max(1)[1]
                 # target_net에서 q값 계산
-                q_primes = self.target(h_prime)
+                q_primes = self.target(s_prime)
                 # online_net에서 고른 액션의, target_net의 q값 뽑기
                 max_q_prime = q_primes.gather(1,q_prime_idx.unsqueeze(1))
                 
             else:
-                max_q_prime = self.target(h_prime).max(1)[0].unsqueeze(1)
+                max_q_prime = self.target(s_prime).max(1)[0].unsqueeze(1)
 
         # loss 계산
             target = r + self.args.gamma * max_q_prime * done_mask
@@ -79,6 +79,7 @@ class Agent():
             return out.argmax().item()
 
 
+# 액션마스킹
 #    def sample_action(self, obs, epsilon, action_mask):
 #        out = self.forward(obs)
 #        coin = random.random()        

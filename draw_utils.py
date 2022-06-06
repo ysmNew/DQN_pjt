@@ -299,7 +299,7 @@ if __name__ == "__main__":
     
     #####################################################
     # 액션 파일에서 액션들을 읽어와서 gif 만들어주기
-    file_name ='test_10.txt'
+    file_name ='test_2.txt'
     f = open(file_name, 'r')
     
     # 파일에서 액션 읽어오기
@@ -311,7 +311,7 @@ if __name__ == "__main__":
         print(info)
         info = info.split('/')
         info[2] = info[2][:-1]
-        
+
         print(eval(info[1]))
 
         # 직접 그리는 부분
@@ -319,8 +319,9 @@ if __name__ == "__main__":
         for idx, new_pos in enumerate(actions):
             render_cls.update_movement(new_pos, idx+1)
 
-        render_cls.save_gif(file_name[:-4], info[0])
+        render_cls.save_gif(file_name[:-4], info[0], actions)
         render_cls.viewer.close()
+        input()
     
     #####################################################
 #     render_cls = Render(screen_width, screen_height, unit, start_point, data_path, log_path)

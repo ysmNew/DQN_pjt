@@ -17,9 +17,10 @@ parser.add_argument('-rn', '--echo',            type=int,   default=1)
 parser.add_argument('-bs', '--batch_size',      type=int,   default=256)
 parser.add_argument('-bl', '--buffer_limit',    type=int,   default=100000)
 parser.add_argument('-sl', '--start_limit',     type=int,   default=50000)
+parser.add_argument('-es', '--epsilon',         type=float, default=0.1)
 parser.add_argument('-gm', '--gamma',           type=float, default=0.99)
 parser.add_argument('-lr', '--learning_rate',   type=float, default=0.0001)
-parser.add_argument('-sf', '--sync_freq',       type=int,   default=2000)
+parser.add_argument('-sf', '--sync_freq',       type=int,   default=5000)
 parser.add_argument('-lf', '--log_freq',        type=int,   default=200)
 parser.add_argument('-md', '--model_path',      type=str,   default='./pt/state_dict_')
 
@@ -36,8 +37,7 @@ def main():
     sim = Simulator(args)
     agent = Agent(args)
 
-    # main_args
-    epsilon_limit = 30000*args.echo
+    #epsilon_limit = 30000*args.echo
     running_loss = 0.0
     cum_reward = 0.0
     avg_len = 0
@@ -45,26 +45,26 @@ def main():
 
     for epi in range(len(sim.files)*args.echo):
         ep = epi%39999
-        h = sim.reset(ep) # 히스토리 [리셋,리셋,리셋,리셋]
-        epsilon = max(0.01, 1.0 - (epi/epsilon_limit))
+        s = sim.reset(ep) 
+
         done = False
 
         # 첫번째 액션을 0으로 고정
-        # h: [1번째,리셋,리셋,리셋], h_prime: [2번째,1번째,리셋,리셋]
-        h, a, r, h_prime, done, cr, gr = sim.step(0)
-        agent.memory.put((h, a, r, h_prime, 1.0)) # done = False, done_mask = 1.0
-        h = h_prime
+        s, a, r, s_prime, done, cr, gr = sim.step(0)
+        agent.memory.put((s, a, s, s_prime, 1.0)) # done = False, done_mask = 1.0
+        s = s_prime
 
         while not done:
             for _ in range(10):
-                action = agent.sample_action(torch.from_numpy(h).unsqueeze(0),epsilon,a,gr)
-                h, a, r, h_prime, done, cr, gr = sim.step(action)
+                action = agent.sample_action(torch.from_numpy(s).unsqueeze(0),args.epsilon,a,gr)
+                s, a, r, s_prime, done, cr, gr = sim.step(action)
                 done_mask = 0.0 if done else 1.0
-                agent.memory.put((h, a, r, h_prime, done_mask))
-                h = h_prime
+                agent.memory.put((s, a, r, s_prime, done_mask))
+                s = s_prime
                 
                 if gr == 'finish':
                     finish_num += 1
+                    writer.add_scalar('finish lenth', len(sim.actions), epi)
 
                 if done:
                     cum_reward += cr

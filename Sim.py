@@ -107,13 +107,15 @@ class Simulator:
 
         # initial grid setting
         self.grid = np.ones((self.height, self.width), dtype="float16")
+# 방문 횟수 테이블 세팅
+        self.table = np.zeros((self.height, self.width), dtype="float16")
 
         # set information about the gridworld
         self.set_box()
         self.set_obstacle()
 # 학습중에는 좌표 순서를 섞고, 마지막에 도착지점 추가 
-        if not self.args.test:
-            random.shuffle(self.local_target)
+        #if not self.args.test:
+        #    random.shuffle(self.local_target)
         self.local_target.append([9,4]) 
         self.target_list = self.local_target.copy()
 
@@ -123,11 +125,8 @@ class Simulator:
         
         self.done = False
 
-# 최초 그리드를 4번 쌓아서 히스토리 초기화(4,10,9)
-        self.history = np.stack((self.grid,self.grid,self.grid,self.grid,self.grid),axis=0)
- 
-# 그리드(10,9)가 아니라 히스토리(4,10,9) 상태 반환
-        return self.history
+# 그리드(10,9)가 아니라 테이블이랑 합쳐진 (2,10,9) 상태 반환
+        return self.get_state()
     
 
     def apply_action(self, action, cur_x, cur_y):
@@ -158,6 +157,22 @@ class Simulator:
         return int(new_x), int(new_y)
 
 
+# 거리 계산 함수
+    def calculate_distance(self, x, y):
+        tar_x, tar_y = self.terminal_location
+        dist = abs(x-tar_x)+abs(y-tar_y)
+        
+        return dist
+    
+# 리워드 계산 함수
+    def move_reward(self, cur_x, cur_y, new_x, new_y):
+        cur_dist = self.calculate_distance(cur_x, cur_y)
+        new_dist = self.calculate_distance(new_x, new_y)
+        #print(cur_dist,new_dist, end =' ')
+        
+        return 0.1/math.sqrt(new_dist) if cur_dist>new_dist else self.args.backward_reward
+        
+        
     def get_reward(self, cur_x, cur_y, new_x, new_y, out_of_boundary):
         '''
         get_reward함수는 리워드를 계산하는 함수이며, 상황에 따라 에이전트가 action을 옳게 했는지 판단하는 지표가 된다.
@@ -183,10 +198,9 @@ class Simulator:
             # 그냥 움직이는 경우 
             else:
                 reward = self.move_reward(cur_x, cur_y, new_x, new_y)
-                if self.terminal_location == [9,4] and (new_x < cur_x):
-                    reward *=5
+                if self.terminal_location == [9,4] and (new_x > cur_x):
+                    reward *=2
                     
-
         return reward
 
 
@@ -197,11 +211,11 @@ class Simulator:
         에이전트가 endpoint에 도착하면 gif로 에피소드에서 에이전트의 행동이 저장된다.
         :param action: 에이전트 행동
         :return: # 리턴 수정
-            h, 4개의 그리드가 쌓인 히스토리
+            s, 상태(그리드 + 방문 횟수 카운팅 테이블)
             action, 에이전트 행동
             reward, 리워드
             cumulative_reward, 누적 리워드
-            h_prime, 다음 히스토리
+            s_prime, 다음 상태
             done, 종료 여부
             #goal_ob_reward, goal까지 아이템을 모두 가지고 돌아오는 finish율 계산을 위한 파라미터
         :rtype: np.array, int, float, float, np.array, bool, bool/str
@@ -216,8 +230,8 @@ class Simulator:
         self.terminal_location = self.local_target[0]
 # 현재 목표를 4로 표시
         self.grid[int(self.terminal_location[0])][int(self.terminal_location[1])] = 4
-# 현재 그리드를 히스토리에 추가
-        self.history = self.get_history()
+# 현재 상태(그리드+테이블) 만들기
+        self.state = self.get_state()
         cur_x,cur_y = self.curloc
         self.actions.append((cur_x, cur_y))
 
@@ -240,10 +254,6 @@ class Simulator:
                 print(action, '벽으로 못 나감')
                 out_of_boundary.append(True)
                 
-        if list(np.unique(self.history,return_counts=True,axis=0)[1]) == [2,2]:
-            print('Wondering 금지')
-            out_of_boundary.append(True)
-        
         # 바깥으로 나가는 경우(벽에 부딪힌 경우) 종료
         if any(out_of_boundary):
             print(action, '아이쿠!')
@@ -252,6 +262,11 @@ class Simulator:
             # 장애물에 부딪히는 경우 종료
             if self.grid[new_x][new_y] == 0:
                 print(action, '쿵!')
+                self.done = True
+                
+            # 같은 자리에서 맴돌지 못하게 조기 종료
+            elif self.table[new_x][new_y] > 2:
+                print('Wondering 금지')
                 self.done = True
 
             # 빈 아이템 박스는 들어가지 않기 ---------> 종료
@@ -278,33 +293,31 @@ class Simulator:
                 self.grid[new_x][new_y] = 5
                 goal_ob_reward = True # 액션마스킹에서 사용
                 self.curloc = (new_x, new_y)
+                self.table[new_x][new_y] += 1
                 
             else:
 # 아이템 박스에서 나가는 경우
                 if (cur_x,cur_y) in self.shelf:
                     print(action, '나가자!')
                     self.grid[cur_x][cur_y] = 2
-                    self.grid[new_x][new_y] = 5
-                    self.curloc = (new_x, new_y)
                     
                 # 그냥 길에서 움직이는 경우 
                 else:
                     #print(action, '..')
                     self.grid[cur_x][cur_y] = 1
-                    self.grid[new_x][new_y] = 5
-                    self.curloc = (new_x, new_y)
 
-        #print(h)
-        #input()
+                self.grid[new_x][new_y] = 5
+                self.curloc = (new_x, new_y)
+                self.table[new_x][new_y] += 1
                 
         reward = self.get_reward(cur_x, cur_y, new_x, new_y, out_of_boundary)
         print('reward:', reward)
         #input()
         self.cumulative_reward += reward
-        h_prime = self.get_history()
+        s_prime = self.get_state()
 
-        #print(h_prime)
-        #print(np.unique(h_prime, return_counts = True, axis=0)[1])
+        #print(s_prime)
+        #print(np.unique(s_prime, return_counts = True, axis=0)[1])
         #input()
         
 # 보류) 상하좌우 확인하고 액션마스킹 하는 기능
@@ -336,26 +349,31 @@ class Simulator:
                     render_cls.viewer.close()
                     display.stop()
         
-        return self.history, action, reward, h_prime, self.done, self.cumulative_reward, goal_ob_reward#, action_mask
+        return self.state, action, reward, s_prime, self.done, self.cumulative_reward, goal_ob_reward#, action_mask
 
 
-    def get_history(self):
+    def get_state(self):
+        new_state = np.stack([self.grid,self.table],axis=0) # (2,10,9)
+        return new_state
+
+
+# 보류)
+#--------------------------------------------------------------------------------------#
+
+    def _get_state(self):
         # 이번 그리드를 히스토리 사이즈에 맞게 reshape
         new_grid =  np.reshape([self.grid],(1,10,9))
         #print('new_grid')
         #print(new_grid) 
-        # history의 마지막장을 떼고 new 그리드를 맨 앞에 붙임
-        #print('old_history')
-        #print(self.history[:3,:,:])
-        new_history = np.append(new_grid,self.history[:3,:,:], axis=0) # (1+3,10,9)
-        #print('new_history')
-        #print(new_history)
+        # state의 마지막장을 떼고 new 그리드를 맨 앞에 붙임
+        #print('old_state')
+        #print(self.state[:3,:,:])
+        new_state = np.append(new_grid,self.state[:3,:,:], axis=0) # (1+3,10,9)
+        #print('new_state')
+        #print(new_state)
         #input()
-        return new_history
+        return new_state
 
-#--------------------------------------------------------------------------------------#
-
-# 보류)
 # 현재 위치의 상하좌우를 확인해서 이동 불가능한 방향의 액션은 마스킹
     def mask_action(self, cur_x, cur_y):
         near = [(cur_x-1, cur_y),(cur_x+1, cur_y),(cur_x, cur_y-1),(cur_x, cur_y+1)]
@@ -373,20 +391,6 @@ class Simulator:
         #input()
         return action_mask
         
-# 거리 계산 함수
-    def calculate_distance(self, x, y):
-        tar_x, tar_y = self.terminal_location
-        dist = abs(x-tar_x)+abs(y-tar_y)
-        
-        return dist
-    
-# 리워드 계산 함수
-    def move_reward(self, cur_x, cur_y, new_x, new_y):
-        cur_dist = self.calculate_distance(cur_x, cur_y)
-        new_dist = self.calculate_distance(new_x, new_y)
-        #print(cur_dist,new_dist, end =' ')
-        
-        return 0.1/math.sqrt(new_dist) if cur_dist>new_dist else self.args.backward_reward
 
-
-            
+        
+        
