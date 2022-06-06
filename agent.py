@@ -59,9 +59,10 @@ class Agent():
 
 #obs: np.array
     def sample_action(self, obs, epsilon, action, goal_ob_reward):
-        obs = obs.to(device)
-        out = self.online.forward(obs)
         coin = random.random()
+        obs = obs.to(device)
+        with torch.no_grad():
+            out = self.online.forward(obs)
         
         if goal_ob_reward:
             if action == 0: return 1

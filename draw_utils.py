@@ -271,7 +271,7 @@ class Render():
     def save_gif(self,file_name, epi, actions):
         epi = str(epi).zfill(5)
         imageio.mimsave(
-            os.path.join(self.log_path, './result'+file_name+'_'+epi+'_'+str(len(actions))+'.gif'),
+            os.path.join(self.log_path, './result_'+file_name+'_'+epi+'_'+str(len(actions))+'.gif'),
             np.array(self.movement))
 
 
