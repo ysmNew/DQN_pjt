@@ -6,6 +6,9 @@
 **DQN batch size=512** [tensorboard](https://tensorboard.dev/experiment/nJW4ouZuRoqnz4LubJvrXA)
 ![](./img/vanllia_bs512.png )
 
+**DQN batch size=512, epsilon=0.05** [tensorboard](https://tensorboard.dev/experiment/NLMESaFgQr6InTPpeZsGQg)
+![](./img/vanllia_bs512_es005.png )
+
 **Double DQN batch size=256** [tensorboard](https://tensorboard.dev/experiment/gFB9tnNKQ261jYRlGqFkyA)
 ![](./img/double_bs256.png)
 
