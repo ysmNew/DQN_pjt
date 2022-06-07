@@ -9,7 +9,7 @@
 **Double DQN batch size=512**
 ![](./img/double_bs512.png)
 
-
+[진행 상황 기록](daily_review.md)
 
 ### **How to train**
     python main.py                       # 기본 설정으로 실행
