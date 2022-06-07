@@ -17,9 +17,10 @@ parser.add_argument('-rn', '--echo',            type=int,   default=1)
 parser.add_argument('-bs', '--batch_size',      type=int,   default=256)
 parser.add_argument('-bl', '--buffer_limit',    type=int,   default=100000)
 parser.add_argument('-sl', '--start_limit',     type=int,   default=50000)
+parser.add_argument('-es', '--epsilon',         type=float, default=0.1)
 parser.add_argument('-gm', '--gamma',           type=float, default=0.99)
 parser.add_argument('-lr', '--learning_rate',   type=float, default=0.0001)
-parser.add_argument('-sf', '--sync_freq',       type=int,   default=2000)
+parser.add_argument('-sf', '--sync_freq',       type=int,   default=5000)
 parser.add_argument('-lf', '--log_freq',        type=int,   default=200)
 parser.add_argument('-md', '--model_path',      type=str,   default='./pt/state_dict_')
 
@@ -42,35 +43,36 @@ def main():
     timestep = 0
     finish_num = 0
 
-    actions_file_name='./txt/test_'+str(args.try_number)+'.txt'
+    actions_file_name='test_'+str(args.try_number)+'.txt'
     f = open(actions_file_name, 'w')
 
     for epi in range(1226):
-        h = sim.reset(epi) # 히스토리 [리셋,리셋,리셋,리셋]
+        s = sim.reset(epi)
         epsilon = 0
         done = False
 
         # 첫번째 액션을 0으로 고정
-        # h: [1번째,리셋,리셋,리셋], h_prime: [2번째,1번째,리셋,리셋]
-        h, a, r, h_prime, done, cr, gr = sim.step(0)
-        h = h_prime
+        s, a, r, s_prime, done, cr, gr = sim.step(0)
+        s = s_prime
         
         while not done:
-            action = agent.sample_action(torch.from_numpy(h).unsqueeze(0),epsilon,a,gr)
-            h, a, r, h_prime, done, cr, gr = sim.step(action)
-            h = h_prime
+            action = agent.sample_action(torch.from_numpy(s).unsqueeze(0),epsilon,a,gr)
+            s, a, r, s_prime, done, cr, gr = sim.step(action)
+            s = s_prime
             
             if gr == 'finish':
                 finish_num += 1
 
             if done:
-                print('target:', sim.target_list)
-                print('lenth: ',len(sim.actions), '\n', sim.actions)
-                print('Episode : {}, Timestep : {}, Reward : {}, Finish Rate : {}'.format(epi,timestep,cr,finish_num/1226))
-                print('==================================================')
+                timestep += len(sim.actions)
                 break
+            
+        print('target:', sim.target_list)
+        print('lenth: ',len(sim.actions), '\n', sim.actions)
+        print('Episode : {}, Timestep : {}, Reward : {}, Finish Rate : {}'.format(epi,timestep,cr,finish_num/1226))
+        print('==================================================')
                 
-        if len(sim.actions)>3:
+        if gr == 'finish':
             f.write(str(epi)+'/'+str(sim.target_list)+'/'+str(cr)+'/'+str(len(sim.actions))+'\n')
             f.write(str(sim.actions)+'\n')
 
@@ -82,8 +84,6 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('tensor in', "cuda" if torch.cuda.is_available() else "cpu")
     input()
-    if not os.path.isdir('./txt'):
-        os.mkdir('./txt')
     
     main()
 

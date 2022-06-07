@@ -299,7 +299,7 @@ if __name__ == "__main__":
     
     #####################################################
     # 액션 파일에서 액션들을 읽어와서 gif 만들어주기
-    file_name ='test_2.txt'
+    file_name ='test_5.txt'
     f = open(file_name, 'r')
     
     # 파일에서 액션 읽어오기
@@ -321,7 +321,6 @@ if __name__ == "__main__":
 
         render_cls.save_gif(file_name[:-4], info[0], actions)
         render_cls.viewer.close()
-        input()
     
     #####################################################
 #     render_cls = Render(screen_width, screen_height, unit, start_point, data_path, log_path)

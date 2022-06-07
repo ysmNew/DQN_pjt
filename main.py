@@ -51,7 +51,7 @@ def main():
 
         # 첫번째 액션을 0으로 고정
         s, a, r, s_prime, done, cr, gr = sim.step(0)
-        agent.memory.put((s, a, s, s_prime, 1.0)) # done = False, done_mask = 1.0
+        agent.memory.put((s, a, r, s_prime, 1.0)) # done = False, done_mask = 1.0
         s = s_prime
 
         while not done:
@@ -71,7 +71,7 @@ def main():
                     avg_len += len(sim.actions)
                     print('target:', sim.target_list)
                     print(sim.actions)
-                    print('episode: {}, epsilon: {}'.format(epi,epsilon))
+                    print('episode: {}, epsilon: {}'.format(epi,args.epsilon))
                     print('finish: {}, lenth: {}, cr: {}'.format(finish_num,len(sim.actions),cr))
                     print('==================================================')
                     break

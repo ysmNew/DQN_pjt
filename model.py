@@ -24,7 +24,7 @@ class Qnet(nn.Module):
 
 class Dueling_Qnet(nn.Module):
     def __init__(self):
-        super(Qnet, self).__init__()
+        super(Dueling_Qnet, self).__init__()
         self.conv1 = nn.Conv2d(2, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)
         self.fc1_adv = nn.Linear(1920, 128)
