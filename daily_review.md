@@ -1,8 +1,7 @@
 ### 6/7 진행 상황
 - 일단 DQN으로 먼저 성능 개선 필요
-- dueling output error
+- dueling output error -> 해결 완료
 - ~스탭 수 제한 시도~ 나중에
-- 성능 개선 
 
 ### 6/6 진행 상황
 
