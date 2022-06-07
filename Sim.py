@@ -245,33 +245,33 @@ class Simulator:
 # 현재 (2,0),(2,8),(5,0),(5,8)에서만 작동
         if (new_x, new_y) in self.shelf:
             if action != self.shelf[(new_x, new_y)][0]:
-                print(action, '벽으로 못 들어감')
+                if not self.args.test: print(action, '벽으로 못 들어감')
                 out_of_boundary.append(True)
 # 아이템 박스에서 허용되지 않은 방향으로 나가는 경우 벽에 부딪힌 것으로 판단
 # 현재는 반드시 후진해서 나가므로 동작하지 않음 
         if (cur_x,cur_y) in self.shelf:
             if action != self.shelf[(cur_x,cur_y)][1]:
-                print(action, '벽으로 못 나감')
+                if not self.args.test:  print(action, '벽으로 못 나감')
                 out_of_boundary.append(True)
                 
         # 바깥으로 나가는 경우(벽에 부딪힌 경우) 종료
         if any(out_of_boundary):
-            print(action, '아이쿠!')
+            if not self.args.test: print(action, '아이쿠!')
             self.done = True
         else:
             # 장애물에 부딪히는 경우 종료
             if self.grid[new_x][new_y] == 0:
-                print(action, '쿵!')
+                if not self.args.test: print(action, '쿵!')
                 self.done = True
                 
             # 같은 자리에서 맴돌지 못하게 조기 종료
             elif self.table[new_x][new_y] > 2:
-                print('Wondering 금지')
+                if not self.args.test: print('Wondering 금지')
                 self.done = True
 
             # 빈 아이템 박스는 들어가지 않기 ---------> 종료
             elif self.grid[new_x][new_y] in (2,3):
-                print(action, '비었어')
+                if not self.args.test: print(action, '비었어')
                 # self.grid[cur_x][cur_y]를 그대로 5로 유지 
                 # self.grid[new_x][new_y]를 그대로 2나 3으로 유지
                 # self.curloc를 그댈 self.curloc = (cur_x,cur_y)로 유지
@@ -280,13 +280,13 @@ class Simulator:
             
             # 현재 목표에 도달한 경우, 다음 목표설정
             elif self.grid[new_x][new_y] == 4:
-                print(action, '============================>', self.local_target[0], '찾았다!')
+                if not self.args.test: print(action, '============================>', self.local_target[0], '찾았다!')
                 # end point 일 때
                 if (new_x, new_y) == (9,4):
-                    print('###########################도착###########################')
+                    if not self.args.test: print('###########################도착###########################')
                     self.done = True
                 else:
-                    print('==============================>', '다음 목표는', self.local_target[1])
+                    if not self.args.test: print('==============================>', '다음 목표는', self.local_target[1])
                     
                 self.local_target.remove(self.local_target[0])
                 self.grid[cur_x][cur_y] = 1
@@ -298,7 +298,7 @@ class Simulator:
             else:
 # 아이템 박스에서 나가는 경우
                 if (cur_x,cur_y) in self.shelf:
-                    print(action, '나가자!')
+                    if not self.args.test: print(action, '나가자!')
                     self.grid[cur_x][cur_y] = 2
                     
                 # 그냥 길에서 움직이는 경우 
@@ -311,7 +311,7 @@ class Simulator:
                 self.table[new_x][new_y] += 1
                 
         reward = self.get_reward(cur_x, cur_y, new_x, new_y, out_of_boundary)
-        print('reward:', reward)
+        if not self.args.test: print('reward:', reward)
         #input()
         self.cumulative_reward += reward
         s_prime = self.get_state()
@@ -330,6 +330,7 @@ class Simulator:
                     goal_ob_reward = 'finish'
 # 학습중에는 GIF 저장 x, 테스트 파일 확인 할 때만 저장
                 if self.args.test:
+                    file_name = 'test_'+str(self.args.try_number)+'.txt'
                     height = 10
                     width = 9 
                     display = Display(visible=False, size=(width, height))
@@ -339,13 +340,15 @@ class Simulator:
                     unit = 50
                     screen_height = height * unit
                     screen_width = width * unit
-                    log_path = "./logs"
+                    log_path = "./logs/" + str(self.args.try_number)
                     data_path = "./data"
-                    render_cls = Render(screen_width, screen_height, unit, start_point, data_path, log_path)
+                    render_cls = Render(self.target_list, screen_width, screen_height, unit, start_point, data_path, log_path)
                     for idx, new_pos in enumerate(self.actions):
                         render_cls.update_movement(new_pos, idx+1)
                     
-                    render_cls.save_gif(self.epi)
+                    if not os.path.isdir(log_path):
+                        os.mkdir(log_path)
+                    render_cls.save_gif(file_name, self.epi, self.actions)
                     render_cls.viewer.close()
                     display.stop()
         

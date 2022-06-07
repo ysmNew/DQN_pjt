@@ -157,7 +157,7 @@ class Render():
         self.local_target = local_target
         
         if self.local_target:
-            print('go')
+            #print('go')
             order_box_arr = np.array(self.local_target)
             df = pd.DataFrame(order_box_arr)
             df.columns = ['row','col']
@@ -179,7 +179,7 @@ class Render():
                         
         # 태양 분기 추가   
         elif type_ == "order_box":
-            print('go1')
+            #print('go1')
             position_data = pd.read_csv(os.path.join(data_path, "order_box.csv"))
             color = order_box_rgb     
         else:
@@ -193,7 +193,7 @@ class Render():
                 self.obstacles.append((getattr(line, "row"), getattr(line, "col")))
             # 태양 분기 추가      
             elif type == "order_box":
-                print('go2')
+                #print('go2')
                 self.order_box.append((getattr(line, "row"), getattr(line, "col")))
                 
             self.create_rectangle(
@@ -308,11 +308,11 @@ if __name__ == "__main__":
         if not info:
             break
         actions = eval(f.readline())
-        print(info)
+        #print(info)
         info = info.split('/')
         info[2] = info[2][:-1]
 
-        print(eval(info[1]))
+        #print(eval(info[1]))
 
         # 직접 그리는 부분
         render_cls = Render(eval(info[1]), screen_width, screen_height, unit, start_point, data_path, log_path)

@@ -41,6 +41,7 @@ def main():
     agent.online.load_state_dict(torch.load(PATH))
     
     timestep = 0
+    total_reward = 0
     finish_num = 0
 
     actions_file_name='test_'+str(args.try_number)+'.txt'
@@ -65,12 +66,14 @@ def main():
 
             if done:
                 timestep += len(sim.actions)
+                total_reward += cr
+                
                 break
             
-        print('target:', sim.target_list)
-        print('lenth: ',len(sim.actions), '\n', sim.actions)
-        print('Episode : {}, Timestep : {}, Reward : {}, Finish Rate : {}'.format(epi,timestep,cr,finish_num/1226))
-        print('==================================================')
+        #print('target:', sim.target_list)
+        #print('lenth: ',len(sim.actions), '\n', sim.actions)
+        print('Episode : {0:>4}, Timestep : {1:>5}, average Reward : {2:0.3f}, Finish Rate : {3:0.3f}'.format(epi,timestep,total_reward/(epi+1),finish_num/(epi+1)))
+        #print('==================================================')
                 
         if gr == 'finish':
             f.write(str(epi)+'/'+str(sim.target_list)+'/'+str(cr)+'/'+str(len(sim.actions))+'\n')

@@ -1,5 +1,14 @@
 ## DQN 실습
 
+**DQN batch size=256**
+![](./img/vanilla_bs256.png)
+**DQN batch size=512**
+![](./img/vanilla_bs512.png)
+**Double DQN batch size=256**
+![](./img/double_bs256.png)
+**Double DQN batch size=512**
+![](./img/double_bs256.png)
+
 ### 6/7 진행 상황
 - 일단 DQN으로 먼저 성능 개선 필요
 - dueling output error
