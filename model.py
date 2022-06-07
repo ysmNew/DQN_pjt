@@ -41,9 +41,11 @@ class Dueling_Qnet(nn.Module):
         # A(s,a) 루트
         adv = F.relu(self.fc1_adv(x))           # (N, 1920) -> (N, 128)
         adv = F.relu(self.fc2_adv(adv))         # (N, 128) -> (N, 4)
+
         # V(s) 루트
         val = F.relu(self.fc1_val(x))           # (N, 1920) -> (N, 128)
         val = F.relu(self.fc2_val(val))         # (N, 128) -> (N, 1)
 
-        x = val+adv-adv.mean(1)                 # (N, 4) (브로드캐스팅)
+        # adv.mean (N)이므로 (N, 1)로 차원 추가 필요
+        x = val+adv-adv.mean(1).unsqueeze(1)    # (N, 4) (브로드캐스팅)
         return x

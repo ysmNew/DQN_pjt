@@ -4,7 +4,6 @@
 ![](./img/vanilla_bs256.png)
 
 **DQN batch size=512** [tensorboard](https://tensorboard.dev/experiment/nJW4ouZuRoqnz4LubJvrXA)
-
 ![](./img/vanllia_bs512.png )
 
 **Double DQN batch size=256** [tensorboard](https://tensorboard.dev/experiment/gFB9tnNKQ261jYRlGqFkyA)
