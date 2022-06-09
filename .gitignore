@@ -3,5 +3,8 @@ __pycache__/*
 logs/*
 pt/*
 pt_temp/*
+txt/*
+test_*
 history_*
-visualization.ipynb
+table_*
+_*

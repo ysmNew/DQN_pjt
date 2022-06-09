@@ -9,6 +9,9 @@
 **DQN batch size=512, epsilon=0.05** [tensorboard](https://tensorboard.dev/experiment/NLMESaFgQr6InTPpeZsGQg)
 ![](./img/vanllia_bs512_es005.png)
 
+**DQN batch size=512, epsilon=0.05, sync frequency=10000**[tensorboard](https://tensorboard.dev/experiment/Mf5mtJxMQKuwpYJ14pGrSA/)
+![](./img/vanilla_bs512_es005_sf10000.png)
+
 
 **Double DQN batch size=256** [tensorboard](https://tensorboard.dev/experiment/gFB9tnNKQ261jYRlGqFkyA)
 ![](./img/double_bs256.png)

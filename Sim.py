@@ -312,7 +312,9 @@ class Simulator:
                 
         reward = self.get_reward(cur_x, cur_y, new_x, new_y, out_of_boundary)
         if not self.args.test: print('reward:', reward)
-        #input()
+# 돌아가는 길 카운터 리셋
+        if self.local_target[0] == [9,4]:
+            self.table = np.zeros((self.height, self.width), dtype="float16")
         self.cumulative_reward += reward
         s_prime = self.get_state()
 
