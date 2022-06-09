@@ -4,10 +4,10 @@
 ![](./img/vanilla_bs256.png)
 
 **DQN batch size=512** [tensorboard](https://tensorboard.dev/experiment/nJW4ouZuRoqnz4LubJvrXA)
-![](./img/vanllia_bs512.png)
+![](./img/vanilla_bs512.png)
 
 **DQN batch size=512, epsilon=0.05** [tensorboard](https://tensorboard.dev/experiment/NLMESaFgQr6InTPpeZsGQg)
-![](./img/vanllia_bs512_es005.png)
+![](./img/vanilla_bs512_es005.png)
 
 **DQN batch size=512, epsilon=0.05, sync frequency=10000**[tensorboard](https://tensorboard.dev/experiment/Mf5mtJxMQKuwpYJ14pGrSA/)
 ![](./img/vanilla_bs512_es005_sf10000.png)
